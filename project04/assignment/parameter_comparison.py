@@ -1,23 +1,16 @@
-"""
-Compare different parameters for SIFT and Harris
-"""
 import cv2
 import numpy as np
 from sift_implementation import *
 from harris_implementation import *
 from utils import *
 
+
 def compare_sift_ratio(img1, img2, ratios=[0.5, 0.6, 0.7, 0.8, 0.9]):
     """
-    Compare SIFT matching with different ratio thresholds
-    
-    CONCEPT:
-    Lower ratio = stricter matching = fewer but more reliable matches
-    Higher ratio = more lenient = more matches but more false positives
+    Compare SIFT matching with different ratio thresholds.
+    Lower ratio = stricter matching, fewer but more reliable matches.
     """
-    print("\n" + "="*70)
-    print("COMPARING SIFT WITH DIFFERENT RATIO THRESHOLDS")
-    print("="*70)
+    print("\nCOMPARING SIFT WITH DIFFERENT RATIO THRESHOLDS")
     
     # Detect and describe once
     kp1, des1 = sift_detect_and_describe(img1)
@@ -33,7 +26,6 @@ def compare_sift_ratio(img1, img2, ratios=[0.5, 0.6, 0.7, 0.8, 0.9]):
         print(f"\nRatio: {ratio}")
         print(f"  Number of matches: {len(matches)}")
         
-        # Draw matches
         img_matches = draw_matches_custom(
             img1, kp1, img2, kp2, matches, max_matches=50
         )
@@ -47,25 +39,21 @@ def compare_sift_ratio(img1, img2, ratios=[0.5, 0.6, 0.7, 0.8, 0.9]):
             'matches': matches
         })
     
-    # Display comparison
     display_images(images, titles, figsize=(20, 15), 
                   save_path="results/sift_ratio_comparison.png")
     
     return results
 
+
 def compare_harris_window_size(img1, img2, window_sizes=[3, 5, 7, 9, 11]):
     """
-    Compare Harris with different descriptor window sizes
-    
-    CONCEPT:
-    Smaller window = more local information, sensitive to noise
-    Larger window = more context, but less discriminative
+    Compare Harris with different descriptor window sizes.
+    Smaller window = more local, sensitive to noise.
+    Larger window = more context, less discriminative.
     """
-    print("\n" + "="*70)
-    print("COMPARING HARRIS WITH DIFFERENT WINDOW SIZES")
-    print("="*70)
+    print("\nCOMPARING HARRIS WITH DIFFERENT WINDOW SIZES")
     
-    # Detect keypoints once (optimized version)
+    # Detect keypoints once
     kp1 = harris_detect_optimized(img1, block_size=2, ksize=3, 
                                    k=0.04, thresh=0.01, max_keypoints=500)
     kp2 = harris_detect_optimized(img2, block_size=2, ksize=3, 
@@ -76,26 +64,23 @@ def compare_harris_window_size(img1, img2, window_sizes=[3, 5, 7, 9, 11]):
     titles = []
     
     for window_size in window_sizes:
-        # Describe with current window size
         kp1_valid, des1 = harris_describe(img1, kp1, patch_size=window_size)
         kp2_valid, des2 = harris_describe(img2, kp2, patch_size=window_size)
         
-        # Match
         matches = match_harris_descriptors(des1, des2, method='ratio_test', 
                                           ratio=0.8)
         
-        print(f"\nWindow size: {window_size}×{window_size}")
+        print(f"\nWindow size: {window_size}x{window_size}")
         print(f"  Valid keypoints img1: {len(kp1_valid)}")
         print(f"  Valid keypoints img2: {len(kp2_valid)}")
         print(f"  Number of matches: {len(matches)}")
         
-        # Draw matches
         img_matches = draw_matches_custom(
             img1, kp1_valid, img2, kp2_valid, matches, max_matches=50
         )
         
         images.append(img_matches)
-        titles.append(f"Window={window_size}×{window_size}, Matches={len(matches)}")
+        titles.append(f"Window={window_size}x{window_size}, Matches={len(matches)}")
         
         results.append({
             'window_size': window_size,
@@ -104,24 +89,17 @@ def compare_harris_window_size(img1, img2, window_sizes=[3, 5, 7, 9, 11]):
             'num_matches': len(matches)
         })
     
-    # Display comparison
     display_images(images, titles, figsize=(20, 15),
                   save_path="results/harris_window_comparison.png")
     
     return results
 
+
 def compare_harris_parameters(img1, img2):
     """
-    Compare Harris with different detector parameters
-    
-    CONCEPT:
-    - block_size: Larger = considers more neighbors for gradient
-    - k: Harris free parameter (0.04-0.06 typical)
-    - thresh: Higher = fewer keypoints (only strongest corners)
+    Compare Harris with different detector parameters.
     """
-    print("\n" + "="*70)
-    print("COMPARING HARRIS DETECTOR PARAMETERS")
-    print("="*70)
+    print("\nCOMPARING HARRIS DETECTOR PARAMETERS")
     
     parameter_sets = [
         {'block_size': 2, 'ksize': 3, 'k': 0.04, 'thresh': 0.01, 'name': 'Default'},
@@ -137,15 +115,12 @@ def compare_harris_parameters(img1, img2):
     for params in parameter_sets:
         name = params.pop('name')
         
-        # Detect
         kp1 = harris_detect_optimized(img1, max_keypoints=500, **params)
         kp2 = harris_detect_optimized(img2, max_keypoints=500, **params)
         
-        # Describe
         kp1_valid, des1 = harris_describe(img1, kp1, patch_size=7)
         kp2_valid, des2 = harris_describe(img2, kp2, patch_size=7)
         
-        # Match
         matches = match_harris_descriptors(des1, des2, method='ratio_test')
         
         print(f"\n{name}:")
@@ -153,7 +128,6 @@ def compare_harris_parameters(img1, img2):
         print(f"  Keypoints: {len(kp1_valid)}, {len(kp2_valid)}")
         print(f"  Matches: {len(matches)}")
         
-        # Draw
         img_matches = draw_matches_custom(
             img1, kp1_valid, img2, kp2_valid, matches, max_matches=50
         )
@@ -172,17 +146,13 @@ def compare_harris_parameters(img1, img2):
     
     return results
 
+
 def compare_sift_vs_harris(img1, img2):
     """
-    Direct comparison between SIFT and Harris
-    
-    CONCEPT:
-    - SIFT: Better for scale/rotation changes, more robust
-    - Harris: Faster, good for corners, needs manual descriptor
+    Direct comparison between SIFT and Harris.
+    SIFT: Better for scale/rotation changes. Harris: Faster, good for corners.
     """
-    print("\n" + "="*70)
-    print("COMPARING SIFT VS HARRIS")
-    print("="*70)
+    print("\nCOMPARING SIFT VS HARRIS")
     
     # SIFT pipeline
     print("\nRunning SIFT...")

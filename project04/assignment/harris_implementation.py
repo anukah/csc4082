@@ -1,44 +1,21 @@
-"""
-Harris corner detection with simple patch descriptors
-"""
 import cv2
 import numpy as np
 
-# ============================================================================
-# CONCEPT: HARRIS CORNER DETECTOR
-# ============================================================================
-# Harris detector finds corners by analyzing how the image intensity 
-# changes in different directions.
-# 
-# Process:
-# 1. Compute image gradients (Ix, Iy)
-# 2. Compute structure tensor M:
-#    M = [Ix²   IxIy ]
-#        [IxIy  Iy²  ]
-# 3. Compute corner response: R = det(M) - k*trace(M)²
-# 4. Threshold R to find corners
-# 
-# Parameters:
-# - blockSize: Size of neighborhood for gradient computation
-# - ksize: Aperture parameter for Sobel operator
-# - k: Harris detector free parameter (typically 0.04-0.06)
-# ============================================================================
 
 def harris_detect(img, block_size=2, ksize=3, k=0.04, thresh=0.01):
     """
-    Detect corners using Harris corner detector
+    Detect corners using Harris corner detector.
     
     Args:
         img: Input grayscale image
         block_size: Neighborhood size for gradient computation
         ksize: Aperture for Sobel operator (must be odd)
-        k: Harris detector parameter
+        k: Harris detector parameter (typically 0.04-0.06)
         thresh: Threshold as fraction of maximum response
     
     Returns:
         keypoints: List of cv2.KeyPoint objects
     """
-    # Ensure image is float32
     img_float = img.astype(np.float32)
     
     # Compute Harris corner response
@@ -55,26 +32,23 @@ def harris_detect(img, block_size=2, ksize=3, k=0.04, thresh=0.01):
     for y in range(harris_response.shape[0]):
         for x in range(harris_response.shape[1]):
             if harris_response[y, x] > threshold:
-                # Create KeyPoint with response value
                 kp = cv2.KeyPoint(
                     float(x), 
                     float(y), 
-                    1,  # size
-                    -1,  # angle
-                    harris_response[y, x]  # response
+                    1,
+                    -1,
+                    harris_response[y, x]
                 )
                 keypoints.append(kp)
     
     return keypoints
 
+
 def harris_detect_optimized(img, block_size=2, ksize=3, k=0.04, 
                            thresh=0.01, max_keypoints=500):
     """
-    Harris detection with non-maximum suppression
-    
-    CONCEPT:
-    Instead of taking all points above threshold, apply non-maximum 
-    suppression to get only the strongest corners in each local region.
+    Harris detection with non-maximum suppression.
+    Only keeps the strongest corners in each local region.
     
     Args:
         img: Input grayscale image
@@ -115,19 +89,10 @@ def harris_detect_optimized(img, block_size=2, ksize=3, k=0.04,
     keypoints = sorted(keypoints, key=lambda x: x.response, reverse=True)
     return keypoints[:max_keypoints]
 
-# ============================================================================
-# CONCEPT: DESCRIPTOR FOR HARRIS KEYPOINTS
-# ============================================================================
-# Harris only detects corners - it doesn't create descriptors.
-# We use the same simple patch descriptor as before.
-# ============================================================================
 
 def harris_describe(img, keypoints, patch_size=7):
     """
-    Create descriptors for Harris keypoints using pixel intensities
-    
-    This is the same as simple_patch_descriptor but included here
-    for clarity in the Harris pipeline.
+    Create descriptors for Harris keypoints using pixel intensities.
     
     Args:
         img: Input grayscale image
@@ -158,15 +123,10 @@ def harris_describe(img, keypoints, patch_size=7):
     
     return valid_kps, np.array(descriptors)
 
-# ============================================================================
-# CONCEPT: MATCHING HARRIS DESCRIPTORS
-# ============================================================================
-# We can use either SSD matching or OpenCV's matchers
-# ============================================================================
 
 def match_harris_descriptors(desc1, desc2, method='ssd', ratio=0.75):
     """
-    Match Harris descriptors
+    Match Harris descriptors using SSD or ratio test.
     
     Args:
         desc1: Descriptors from image 1

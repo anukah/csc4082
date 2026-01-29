@@ -1,9 +1,7 @@
-"""
-Main script for SIFT and Harris feature matching assignment
-"""
 import cv2
 import numpy as np
 import sys
+import os
 
 from utils import *
 from sift_implementation import *
@@ -11,12 +9,8 @@ from harris_implementation import *
 from parameter_comparison import *
 
 def demonstrate_sift_simple_descriptor(img1, img2):
-    """
-    Step 1a: SIFT detector + Simple patch descriptor
-    """
-    print("\n" + "="*70)
-    print("STEP 1a: SIFT DETECTOR + SIMPLE PATCH DESCRIPTOR (5×5)")
-    print("="*70)
+    """Step 1a: SIFT detector + Simple patch descriptor"""
+    print("\nSTEP 1a: SIFT DETECTOR + SIMPLE PATCH DESCRIPTOR (5x5)")
     
     # Detect keypoints using SIFT
     kp1 = sift_detect_only(img1)
@@ -57,12 +51,8 @@ def demonstrate_sift_simple_descriptor(img1, img2):
     return kp1_valid, kp2_valid, des1, des2, matches
 
 def demonstrate_sift_full(img1, img2):
-    """
-    Step 1b: SIFT detector + SIFT descriptor
-    """
-    print("\n" + "="*70)
-    print("STEP 1b: SIFT DETECTOR + SIFT DESCRIPTOR (128-D)")
-    print("="*70)
+    """Step 1b: SIFT detector + SIFT descriptor"""
+    print("\nSTEP 1b: SIFT DETECTOR + SIFT DESCRIPTOR (128-D)")
     
     # Detect and describe
     kp1, des1 = sift_detect_and_describe(img1)
@@ -107,12 +97,8 @@ def demonstrate_sift_full(img1, img2):
     return kp1, kp2, des1, des2, matches_ratio
 
 def demonstrate_harris(img1, img2):
-    """
-    Step 2: Harris detector + Simple descriptor
-    """
-    print("\n" + "="*70)
-    print("STEP 2: HARRIS CORNER DETECTOR + SIMPLE DESCRIPTOR")
-    print("="*70)
+    """Step 2: Harris detector + Simple descriptor"""
+    print("\nSTEP 2: HARRIS CORNER DETECTOR + SIMPLE DESCRIPTOR")
     
     # Detect corners
     kp1 = harris_detect_optimized(img1, block_size=2, ksize=3, k=0.04, 
@@ -123,7 +109,7 @@ def demonstrate_harris(img1, img2):
     print(f"Detected {len(kp1)} corners in image 1")
     print(f"Detected {len(kp2)} corners in image 2")
     
-    # Create descriptors (7×7 window)
+    # Create descriptors (7x7 window)
     kp1_valid, des1 = harris_describe(img1, kp1, patch_size=7)
     kp2_valid, des2 = harris_describe(img2, kp2, patch_size=7)
     
@@ -165,12 +151,8 @@ def demonstrate_harris(img1, img2):
     return kp1_valid, kp2_valid, des1, des2, matches_ratio
 
 def run_parameter_comparisons(img1, img2):
-    """
-    Step 3: Compare different parameters
-    """
-    print("\n" + "="*70)
-    print("STEP 3: PARAMETER COMPARISONS")
-    print("="*70)
+    """Step 3: Compare different parameters"""
+    print("\nSTEP 3: PARAMETER COMPARISONS")
     
     # Compare SIFT ratio thresholds
     sift_results = compare_sift_ratio(img1, img2, 
@@ -194,36 +176,27 @@ def run_parameter_comparisons(img1, img2):
     }
 
 def main():
-    """
-    Main execution function
-    """
-    print("\n" + "="*70)
-    print("SIFT AND HARRIS FEATURE MATCHING ASSIGNMENT")
-    print("="*70)
+    """Main execution function"""
+    print("\nSIFT AND HARRIS FEATURE MATCHING ASSIGNMENT")
     
     # Create output directory
     create_output_directory("results")
     
-    # ========================================================================
-    # LOAD IMAGES
-    # ========================================================================
-    # Replace these with your actual image paths
+    # Load images
     image_pairs = [
-        ("images/scale_img1.jpg", "images/scale_img2.jpg"),  # Sample images
-        # Add more pairs for testing
+        ("images/scale_img1.jpg", "images/scale_img2.jpg"),
     ]
     
     # Check if images exist
-    import os
     if not os.path.exists(image_pairs[0][0]):
-        print("\n⚠️  ERROR: Sample images not found!")
+        print("\nERROR: Sample images not found!")
         print("Please place your test images in the 'images/' directory")
         print("Expected files:")
         for path1, path2 in image_pairs:
             print(f"  - {path1}")
             print(f"  - {path2}")
         
-        print("\n💡 TIP: You can create test images by:")
+        print("\nTIP: You can create test images by:")
         print("  1. Taking photos of the same object from different angles")
         print("  2. Taking photos with different lighting")
         print("  3. Taking photos at different scales")
@@ -238,9 +211,7 @@ def main():
     print(f"  Image 1: {img1.shape}")
     print(f"  Image 2: {img2.shape}")
     
-    # ========================================================================
-    # RUN ALL DEMONSTRATIONS
-    # ========================================================================
+    # Run all demonstrations
     
     # Step 1a: SIFT detector + simple descriptor
     results_1a = demonstrate_sift_simple_descriptor(img1, img2)
@@ -254,18 +225,13 @@ def main():
     # Step 3: Parameter comparisons
     results_3 = run_parameter_comparisons(img1, img2)
     
-    # ========================================================================
-    # SUMMARY
-    # ========================================================================
-    print("\n" + "="*70)
-    print("EXECUTION COMPLETE!")
-    print("="*70)
+    # Summary
+    print("\nEXECUTION COMPLETE!")
     print("\nAll results have been saved to the 'results/' directory")
     print("\nGenerated files:")
     print("  - Individual result images (1a_*, 1b_*, 2_*)")
     print("  - Comparison plots (*_comparison.png)")
     print("  - SIFT vs Harris comparison (sift_vs_harris.png)")
-    print("\n" + "="*70)
 
 if __name__ == "__main__":
     main()
