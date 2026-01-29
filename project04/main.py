@@ -177,7 +177,6 @@ def run_parameter_comparisons(img1, img2):
 
 def main():
     """Main execution function"""
-    print("\nSIFT AND HARRIS FEATURE MATCHING ASSIGNMENT")
     
     # Create output directory
     create_output_directory("results")
@@ -190,17 +189,11 @@ def main():
     # Check if images exist
     if not os.path.exists(image_pairs[0][0]):
         print("\nERROR: Sample images not found!")
-        print("Please place your test images in the 'images/' directory")
-        print("Expected files:")
-        for path1, path2 in image_pairs:
-            print(f"  - {path1}")
-            print(f"  - {path2}")
-        
-        print("\nTIP: You can create test images by:")
-        print("  1. Taking photos of the same object from different angles")
-        print("  2. Taking photos with different lighting")
-        print("  3. Taking photos at different scales")
-        print("  4. Using online datasets (e.g., Oxford Visual Geometry Group)")
+        print("\nTo create test images, run:")
+        print("  python create_test_pairs.py <your_image.jpg>")
+        print("\nExample:")
+        print("  python create_test_pairs.py img.jpg")
+        print("\nThis will generate 10 image pairs in the 'images/' directory.")
         
         return
     
