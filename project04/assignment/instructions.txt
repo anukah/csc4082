@@ -1,0 +1,9 @@
+ Run main assignment
+python main.py
+
+
+to create test pairs upload a image to the assignment directory and run this command it will create test pairs in images directory
+
+python create_test_pairs.py your_sample_image.jpg
+
+
